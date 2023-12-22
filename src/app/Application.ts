@@ -62,7 +62,11 @@ export interface ApplicationOptions extends AutoDetectOptions, PixiMixins.Applic
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Application extends PixiMixins.Application {}
-
+interface appOptions {
+    container: Container,
+    renderer: Renderer,
+    options: ApplicationOptions
+}
 /**
  * Convenience class to create a new PixiJS application.
  *
@@ -82,6 +86,7 @@ export interface Application extends PixiMixins.Application {}
  * app.stage.addChild(Sprite.from('something.png'));
  * @memberof app
  */
+
 export class Application<R extends Renderer = Renderer>
 {
     /**
@@ -100,26 +105,29 @@ export class Application<R extends Renderer = Renderer>
      * WebGL renderer if available, otherwise CanvasRenderer.
      * @member {Renderer}
      */
-    public renderer: R;
-
+    public renderer: Renderer;
+    public options: ApplicationOptions
     /**
+     * @param container provide a container for the app as its stage
+     * @param renderer provide a renderer as webgl renderer or webgpu renderer
      * @param options - The optional application and renderer parameters.
      */
-    public async init(options?: Partial<ApplicationOptions>)
-    {
+    constructor({ container, renderer, options }: appOptions) {
+        this.stage = container;
+        this.renderer = renderer;
+        this.options = options;
+    }
+
+    public async init() {
         // The default options
-        options = {
-            ...{
-                // forceCanvas: false,
-            },
-            ...options,
-        };
-
-        this.renderer = await autoDetectRenderer(options as ApplicationOptions) as R;
-
+        const { options, renderer } = this;
+        if (!renderer) {
+            this.renderer = await autoDetectRenderer(options as ApplicationOptions) as R;
+        } else {
+            renderer.init(options);
+        }
         // install plugins here
-        Application._plugins.forEach((plugin) =>
-        {
+        Application._plugins.forEach((plugin) => {
             plugin.init.call(this, options);
         });
     }

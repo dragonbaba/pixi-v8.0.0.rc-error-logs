@@ -57,8 +57,14 @@ export class BufferSystem implements System
 
     public createGPUBuffer(buffer: Buffer): GPUBuffer
     {
-        const gpuBuffer = this._gpu.device.createBuffer(buffer.descriptor);
-
+        const device = this._gpu.device;
+        device.pushErrorScope("out-of-memory");
+        const gpuBuffer = device.createBuffer(buffer.descriptor);
+        device.popErrorScope().then((error) => {
+            if (error) {
+              console.error(`Out of memory, buffer too large. Error: ${error.message}`);
+            }
+          })
         buffer._updateID = 0;
 
         if (buffer.data)

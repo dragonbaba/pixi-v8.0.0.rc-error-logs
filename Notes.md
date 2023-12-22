@@ -1,3 +1,14 @@
+# Application need some parameters for constructor
+```
+//now we can define our stage for app and renderer
+//if nothing can be provided as renderer ,app will create a renderer auto
+import {WebglRenderer , Container,Application} from"./pixi";
+const webglRenderer = new WebglRenderer();
+const stage = new Container();
+const app = new Application({stage,webglRenderer,{width:500,height:500}});
+await app.init();
+```
+
 # WebGL / WebGPU and Canvas separation
 
 - Shaders are the only area that overlap with WebGL and WebGPU. This is really about convenience! We could split them out but who wants a different blur shader for webGL and WebGPU?

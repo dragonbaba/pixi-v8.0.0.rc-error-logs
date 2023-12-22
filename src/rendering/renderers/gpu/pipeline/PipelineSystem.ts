@@ -207,11 +207,18 @@ export class PipelineSystem implements System
     private _createModule(code: string): GPUShaderModule
     {
         const device = this._gpu.device;
-
-        this._moduleCache[code] = device.createShaderModule({
+        const codes = device.createShaderModule({
             code,
         });
-
+        this._moduleCache[code] = codes;
+        codes.getCompilationInfo().then((infos => {
+            const messages = infos.messages;
+            for (const info of messages) {
+              const { type, message, lineNum, linePos } = info;
+              if (type === "error") throw new Error(message + "this num is" + lineNum + "ths position is " + linePos);
+              if (type === "warning") console.warn(message);
+            }
+          }), e => console.error(e));
         return this._moduleCache[code];
     }
 

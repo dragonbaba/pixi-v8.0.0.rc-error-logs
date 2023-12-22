@@ -110,9 +110,17 @@ export class GpuDeviceSystem implements System<GpuContextOptions>
 
         // TODO and one of these!
         const device = await adapter.requestDevice({
-            requiredFeatures
+            requiredFeatures,
+            requiredLimits: {
+                maxStorageBufferBindingSize: adapter.limits.maxStorageBufferBindingSize
+            }
         });
-
+        device.addEventListener("uncapturederror", (event: GPUUncapturedErrorEvent) => {
+            // Re-surface the error.
+            console.error("A WebGPU error was not captured:", event.error);
+            console.error(event.error.constructor.name);
+            console.error(event.error.message);
+        });
         return { adapter, device };
     }
 
