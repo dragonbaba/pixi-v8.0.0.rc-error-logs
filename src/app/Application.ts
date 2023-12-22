@@ -113,7 +113,7 @@ export class Application<R extends Renderer = Renderer>
      * @param options - The optional application and renderer parameters.
      */
     constructor({ container, renderer, options }: appOptions) {
-        this.stage = container;
+        this.stage = container ?? new Container();
         this.renderer = renderer;
         this.options = options;
     }
